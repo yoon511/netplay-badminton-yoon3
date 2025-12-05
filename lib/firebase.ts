@@ -1,10 +1,11 @@
 // lib/firebase.ts
 
 
+// lib/firebase.ts
+
 import { initializeApp } from "firebase/app";
 import { getDatabase } from "firebase/database";
 
-// 🚨 여기서 databaseURL 꼭 firebaseio.com 버전이어야 한다!!!
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "",
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || "",
@@ -15,9 +16,8 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || "",
 };
 
-// Firebase 초기화
 const app = initializeApp(firebaseConfig);
 
-// Firestore
-export const db = getFirestore(app);
+// 🔥 Realtime Database만 사용하기 때문에 이것만 export
+export const rtdb = getDatabase(app);
 
