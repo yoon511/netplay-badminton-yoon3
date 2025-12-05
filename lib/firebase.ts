@@ -1,6 +1,7 @@
 // lib/firebase.ts
 
 import { initializeApp } from "firebase/app";
+import { getFirestore } from "firebase/firestore";
 import { getDatabase } from "firebase/database";
 
 // 🚨 여기서 databaseURL 꼭 firebaseio.com 버전이어야 한다!!!
@@ -17,7 +18,12 @@ const firebaseConfig = {
 // Firebase 초기화
 const app = initializeApp(firebaseConfig);
 
-// Realtime DB 가져오기
-export const db = getDatabase(app);
+// Firestore
+export const db = getFirestore(app);
 
+// Realtime Database (너 상황에 맞춘 정답 코드)
+export const rtdb = getDatabase(
+  app,
+  "https://netplay-badminton-yoon.firebaseio.com"
+);
 
