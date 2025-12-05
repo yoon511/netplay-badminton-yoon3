@@ -3,7 +3,8 @@
 import { onValue, ref, set } from "firebase/database";
 import { Clock, Plus, RotateCcw, Users, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { db } from "../lib/firebase";
+import { rtdb } from "../lib/firebase";
+
 
 type Player = {
   id: number;
@@ -53,9 +54,9 @@ export default function BadmintonManager({ isAdmin }: { isAdmin: boolean }) {
   // 🔥 Firebase 실시간 데이터 읽기
   // ============================
   useEffect(() => {
-    const playersRef = ref(db, "players");
-    const courtsRef = ref(db, "courts");
-    const waitingRef = ref(db, "waitingQueues");
+    const playersRef = ref(rtdb, "players");
+    const courtsRef = ref(rtdb, "courts");
+    const waitingRef = ref(rtdb, "waitingQueues");
 
     onValue(playersRef, (snapshot) => {
       const data = snapshot.val();
@@ -101,17 +102,17 @@ export default function BadmintonManager({ isAdmin }: { isAdmin: boolean }) {
   // ============================
   const savePlayers = (list: Player[]) => {
     setPlayers(list);
-    set(ref(db, "players"), list);
+    set(ref(rtdb, "players"), list);
   };
 
   const saveCourts = (list: Court[]) => {
     setCourts(list);
-    set(ref(db, "courts"), list);
+    set(ref(rtdb, "courts"), list);
   };
 
   const saveWaiting = (list: number[][]) => {
     setWaitingQueues(list);
-    set(ref(db, "waitingQueues"), list);
+    set(ref(rtdb, "waitingQueues"), list);
   };
   // ============================
   // 🟦 참가자 추가
