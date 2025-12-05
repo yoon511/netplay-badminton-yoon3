@@ -1,0 +1,32 @@
+{
+  "rules": {
+    "players": {
+      // 참가자 목록 - 읽기는 모두 허용, 쓰기는 인증된 사용자만
+      ".read": true,
+      ".write": "auth != null",
+      "$playerId": {
+        // 개별 플레이어 데이터 검증
+        ".validate": "newData.hasChildren(['id', 'name', 'grade', 'gender', 'playCount'])"
+      }
+    },
+    "courts": {
+      // 코트 정보 - 읽기는 모두 허용, 쓰기는 인증된 사용자만
+      ".read": true,
+      ".write": "auth != null",
+      "$courtId": {
+        // 코트 데이터 검증
+        ".validate": "newData.hasChildren(['id', 'players', 'startTime'])"
+      }
+    },
+    "waitingQueues": {
+      // 대기열 정보 - 읽기는 모두 허용, 쓰기는 인증된 사용자만
+      ".read": true,
+      ".write": "auth != null",
+      "$queueIndex": {
+        // 대기열은 배열이어야 함
+        ".validate": "newData.isNumber() || newData.val() is Array"
+      }
+    }
+  }
+}
+
