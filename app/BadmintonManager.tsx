@@ -675,7 +675,7 @@ export default function BadmintonManager({ isAdmin }: { isAdmin: boolean }) {
         </div>
 
         <p className="text-sm mt-6 text-[#333333] font-semibold">
-          관리자 모드: URL 끝에 <b>?admin=yoon511</b> 을 붙이세요.   version 1.0.1
+          version 1.0.1
         </p>
       </div>
     </div>
