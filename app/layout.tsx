@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     siteName: "넷플레이 게임판",
     images: [
       {
-        url: "/og-image.png", // 반드시 public 폴더에 og-image.png 넣어야 함
+        url: "/og-image.jpg", // 반드시 public 폴더에 og-image.png 넣어야 함
         width: 1200,
         height: 630,
       },
