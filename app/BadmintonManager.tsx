@@ -107,8 +107,15 @@ export default function BadmintonManager({ isAdmin }: { isAdmin: boolean }) {
   }, [courts]);
 
   const safeWaitingQueues = useMemo(() => {
-    return waitingQueues.filter((q) => Array.isArray(q));
-  }, [waitingQueues]);
+  // 유효한 대기열만 필터링
+  const cleaned = waitingQueues.filter((q) => Array.isArray(q));
+
+  // 최소 1개는 항상 보이도록
+  if (cleaned.length === 0) cleaned.push([]);
+
+  return cleaned;
+}, [waitingQueues]);
+
 
   const playersInCourts = useMemo(
     () =>
