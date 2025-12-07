@@ -1,3 +1,4 @@
+/* 🔵 상단 전체 배경: 파스텔 블루 그라데이션 */
 "use client";
 
 import { onValue, ref, set } from "firebase/database";
@@ -25,12 +26,12 @@ const DEFAULT_COURTS: Court[] = [
   { id: 3, players: [], startTime: null },
 ];
 
-const DEFAULT_WAITING: number[][] = [[], [], []];
+const DEFAULT_WAITING: number[][] = [];
 
 export default function BadmintonManager({ isAdmin }: { isAdmin: boolean }) {
   const [players, setPlayers] = useState<Player[]>([]);
   const [courts, setCourts] = useState<any>(DEFAULT_COURTS);
-  const [waitingQueues, setWaitingQueues] = useState<any>(DEFAULT_WAITING);
+  const [waitingQueues, setWaitingQueues] = useState<number[][]>([]);
 
   const [newName, setNewName] = useState("");
   const [newGrade, setNewGrade] = useState("D");
@@ -73,66 +74,40 @@ export default function BadmintonManager({ isAdmin }: { isAdmin: boolean }) {
 
       const arr = Array.isArray(data) ? data : Object.values(data);
 
-      const cleaned = arr
-        .filter(Boolean)
-        .map((c: any, i: number) => ({
+      setCourts(
+        arr.map((c: any, i: number) => ({
           id: c.id ?? i + 1,
-          players: Array.isArray(c.players)
-            ? c.players.filter(Boolean)
-            : [],
+          players: Array.isArray(c.players) ? c.players.filter(Boolean) : [],
           startTime: typeof c.startTime === "number" ? c.startTime : null,
-        }));
-
-      while (cleaned.length < 3)
-        cleaned.push({ id: cleaned.length + 1, players: [], startTime: null });
-
-      setCourts(cleaned);
+        }))
+      );
     });
 
     onValue(waitingRef, (snapshot) => {
       const data = snapshot.val();
-      if (!data) return setWaitingQueues(DEFAULT_WAITING);
+      if (!data) return setWaitingQueues([]);
 
       const arr = Array.isArray(data) ? data : Object.values(data);
 
-      const cleaned = arr.map((q: any) =>
-        Array.isArray(q) ? q.filter((id) => typeof id === "number") : []
+      setWaitingQueues(
+        arr.map((q: any) =>
+          Array.isArray(q) ? q.filter((id) => typeof id === "number") : []
+        )
       );
-
-      while (cleaned.length < 3) cleaned.push([]);
-
-      setWaitingQueues(cleaned);
     });
   }, []);
 
-  /* 안전한 형태로 정규화 */
+  /* 정규화 */
   const safeCourts: Court[] = useMemo(() => {
-    const arr = Array.isArray(courts) ? courts : [];
-
-    const cleaned = arr.map((c: any, i: number) => ({
+    return courts.map((c: any, i: number) => ({
       id: c.id ?? i + 1,
-      players: Array.isArray(c.players)
-        ? c.players.filter(Boolean)
-        : [],
+      players: Array.isArray(c.players) ? c.players.filter(Boolean) : [],
       startTime: typeof c.startTime === "number" ? c.startTime : null,
     }));
-
-    while (cleaned.length < 3)
-      cleaned.push({ id: cleaned.length + 1, players: [], startTime: null });
-
-    return cleaned;
   }, [courts]);
 
   const safeWaitingQueues = useMemo(() => {
-    const arr = Array.isArray(waitingQueues) ? waitingQueues : [];
-
-    const cleaned = arr.map((q: any) =>
-      Array.isArray(q) ? q.filter((id) => typeof id === "number") : []
-    );
-
-    while (cleaned.length < 3) cleaned.push([]);
-
-    return cleaned;
+    return waitingQueues.filter((q) => Array.isArray(q));
   }, [waitingQueues]);
 
   const playersInCourts = useMemo(
@@ -157,12 +132,8 @@ export default function BadmintonManager({ isAdmin }: { isAdmin: boolean }) {
   };
 
   const saveWaiting = (list: number[][]) => {
-    const cleaned = list.map((q) =>
-      Array.isArray(q) ? q.filter((id) => typeof id === "number") : []
-    );
-    while (cleaned.length < 3) cleaned.push([]);
-    setWaitingQueues(cleaned);
-    set(ref(rtdb, "waitingQueues"), cleaned);
+    setWaitingQueues(list);
+    set(ref(rtdb, "waitingQueues"), list);
   };
 
   /* 참가자 선택 */
@@ -203,14 +174,12 @@ export default function BadmintonManager({ isAdmin }: { isAdmin: boolean }) {
 
     savePlayers(players.filter((x) => x.id !== id));
 
-    saveWaiting(
-      safeWaitingQueues.map((q) => q.filter((x) => x !== id))
-    );
+    saveWaiting(safeWaitingQueues.map((q) => q.filter((x) => x !== id)));
 
     setSelectedPlayers(selectedPlayers.filter((x) => x !== id));
   };
 
-  /* 대기열 이동 — 원래 기능 100% 복원 */
+  /* 대기열 이동 */
   const moveToWaitingQueue = () => {
     if (!isAdmin) return;
 
@@ -293,7 +262,7 @@ export default function BadmintonManager({ isAdmin }: { isAdmin: boolean }) {
     if (!isAdmin) return;
 
     const queue = safeWaitingQueues[qIndex];
-    if (!Array.isArray(queue) || queue.length !== 4) return;
+    if (!queue || queue.length !== 4) return;
 
     const assigned = players.filter((p) => queue.includes(p.id));
 
@@ -313,7 +282,7 @@ export default function BadmintonManager({ isAdmin }: { isAdmin: boolean }) {
       )
     );
 
-    let newQueues = [...safeWaitingQueues];
+    const newQueues = [...safeWaitingQueues];
     newQueues[qIndex] = [];
     saveWaiting(newQueues);
   };
@@ -359,7 +328,7 @@ export default function BadmintonManager({ isAdmin }: { isAdmin: boolean }) {
                 if (confirm("전체 초기화하시겠습니까? 모든 DB 데이터가 삭제됩니다.")) {
                   savePlayers([]);
                   saveCourts(DEFAULT_COURTS);
-                  saveWaiting(DEFAULT_WAITING);
+                  saveWaiting([]);
                 }
               }}
               className="px-4 py-2 bg-[#FFB2B2] text-white rounded-lg flex gap-2 items-center"
