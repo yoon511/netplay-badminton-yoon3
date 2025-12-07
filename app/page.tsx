@@ -1,11 +1,14 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
-import BadmintonManager from "./BadmintonManager";
+export const dynamic = "force-dynamic"; // <<< 🔥 SSR 완전 비활성화
 
-export default function HomeContent() {
-  const searchParams = useSearchParams();
-  const isAdmin = searchParams.get("admin") === "yoon511";
+import { Suspense } from "react";
+import HomeContent from "./HomeContent";
 
-  return <BadmintonManager isAdmin={isAdmin} />;
+export default function Page() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <HomeContent />
+    </Suspense>
+  );
 }
